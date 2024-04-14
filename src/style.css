@@ -11,3 +11,47 @@
         width: 50%;
     }
 }
+
+.talk-section {
+    padding: 50px 0; /* Keep the padding */
+    margin-top: -100px; /* Adjust this value to bring the section up or down */
+    color: #484f75;
+}
+
+
+.talk-section h2 {
+    font-size: 3.5em; /* Larger font size for the heading */
+}
+.form-control {
+    width: 200px;
+}
+.circular-input {
+    border-radius: 80px; /* Adjust the value to make the input more or less circular */
+    padding: 10px 15px; /* Adjust the padding as needed */
+    border: 1px solid #ccc; /* Add a border for better visibility */
+    width: 250px; /* Adjust the width as needed */
+    text-align: center; /* Center the text horizontally */
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+.message-box {
+    width: 500px; /* Adjust the width as needed */
+    height: 200px; /* Adjust the height as needed */
+}
+
+.btn-dark-blue {
+    background-color: #484f75; /* Dark blue color */
+    color: white; /* Text color */
+    border: none; /* Remove button border */
+    padding: 20px 50px; /* Adjust padding for button size */
+    border-radius: 70px; /* Make the button slightly circular */
+}
+
+.btn-dark-blue:hover {
+    background-color: #003084; /* Darker blue color on hover */
+}
+.thank-you-text {
+    color: #484f75; /* Dark blue color */
+    font-size: 2rem; /* Adjust as needed */
+}
+
