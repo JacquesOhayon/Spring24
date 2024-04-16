@@ -54,7 +54,7 @@
                         deficit(VPD) for any selected day at any hour. This information is used to find correlations between extreme behavior 
                         in people and the weather. 
                     </p>
-                    <form>
+                    <form id="weatherForm">
                         <div class="mb-3">
                           <label class="form-label">Location</label>
                           <input 
@@ -75,16 +75,6 @@
                           >
                           <div id="dateHelp" class="form-text">Please enter the date of the event.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Time(optional)</label>
-                            <input 
-                            type="time" 
-                            class="form-control" 
-                            id="time"
-                            value="time"
-                            >
-                            <div id="timeHelp" class="form-text">At what hour did the event occur?</div>
-                          </div>
                         <button type="submit" class="btn btn-warning mb-5">Submit</button>
                     </form>
                 </div>
@@ -150,5 +140,68 @@
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- Script to get Visual Crossing information-->
+    <script>
+        function toggleTimeInput() {
+            const timeField = document.getElementById("time-field");
+            const timeToggle = document.getElementById("time-toggle");
+            
+            if (timeToggle.checked) {
+                timeField.style.display = "block";
+            } else {
+                timeField.style.display = "none";
+            }
+        }
+
+        document.getElementById("weatherForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get form values
+            const location = document.getElementById("location").value;
+            const date = document.getElementById("date").value;
+
+            // Print form values to console
+            console.log("Location:", location);
+            console.log("Date:", date);
+
+            // Fetch weather data based on user input
+            const apiKey = 'ZMC696N3FA8JQW6DRNFUMXE7B';
+            const baseUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
+            const fullUrl = `${baseUrl}${location}/${date}/${date}?unitGroup=metric&key=${apiKey}`;
+            fetch(fullUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(weatherData => {
+                    displayWeatherData(weatherData);
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                });
+        });
+
+        function displayWeatherData(weatherData) {
+            if (weatherData) {
+                console.log(`Weather information for ${weatherData.resolvedAddress}:`);
+
+                // Loop through each hour of the day
+                weatherData.days.forEach(day => {
+                    console.log(`Date: ${day.datetime}`);
+                    day.hours.forEach(hour => {
+                        console.log(`    Hour: ${hour.datetime}`);
+                        console.log(`        Temperature: ${hour.temp}°C`);
+                        console.log(`        Humidity: ${hour.humidity} g/kg`);
+                    });
+                });
+            } else {
+                console.log("Failed to retrieve weather data");
+            }
+        }
+    </script>
+
 </body>
 </html>
