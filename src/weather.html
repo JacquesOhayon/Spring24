@@ -146,7 +146,7 @@
                 // Fetch weather data based on user input
                 const apiKey = 'ZMC696N3FA8JQW6DRNFUMXE7B';
                 const baseUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
-                const fullUrl = `${baseUrl}${location}/${date}/${date}?unitGroup=metric&key=${apiKey}`;
+                const fullUrl = `${baseUrl}${location}/${date}/${date}?unitGroup=us&key=${apiKey}`;
 
                 fetch(fullUrl)
                     .then(response => {
@@ -189,7 +189,7 @@
                                 <thead class="thead-dark">
                                     <tr>
                                         <th scope="col">Time</th>
-                                        <th scope="col">VPD</th>
+                                        <th scope="col">VPD in kilo pascals</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tableBody">
@@ -204,10 +204,12 @@
                     if (tableBody) {
                         weatherData.days.forEach(day => {
                             day.hours.forEach(hour => {
+                                console.log(hour)
                                 const hourTime = hour.datetime;
                                 const temp = hour.temp;
-                                const humidity = hour.humidity / 100; // Converting humidity to percentage
+                                const humidity = hour.humidity;
                                 
+
                                 // Calculate VPD
                                 const vpd = calculateVPD(temp, humidity);
 
@@ -228,11 +230,11 @@
         }
 
         function calculateVPD(temperature, humidity) {
-            const saturationVaporPressure = 610.78 * Math.exp(temperature / (temperature + 237.3) * 17.2694);
-            const vaporPressure = saturationVaporPressure * (1 - humidity);
-            const vpd = saturationVaporPressure - vaporPressure;
+            const saturationVaporPressure = 610.78 * Math.exp((temperature * 17.2694) / (temperature + 237.3));
+            const vpd = saturationVaporPressure * (1 - humidity / 100);
             return vpd;
         }
+
 
     </script>
 
