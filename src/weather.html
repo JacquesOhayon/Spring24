@@ -143,6 +143,16 @@
                 const location = document.getElementById("location").value;
                 const date = document.getElementById("date").value;
 
+                // Validate date
+                const currentDate = new Date();
+                const selectedDate = new Date(date);
+
+                if (selectedDate >= currentDate) {
+                    // Display warning message
+                    document.getElementById("dateHelp").textContent = "Please enter a date before today.";
+                    return; 
+                }
+
                 // Fetch weather data based on user input
                 const apiKey = 'ZMC696N3FA8JQW6DRNFUMXE7B';
                 const baseUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
