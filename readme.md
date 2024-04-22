@@ -1,4 +1,4 @@
-# **Virtual Intelligence LLC**
+# **Visual Intelligence LLC**
 > Spring 2024 NJIT Capstone 
 ---
 ## Important Info Regarding this version of alt-antibiotics.org:
