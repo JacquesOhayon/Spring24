@@ -1,0 +1,6 @@
+This folder was created to provide organization and structure amongst primary pages and secondary pages.
+The secondary pages that would be placed here are pages that users will be directed to once they clik on the 
+corresponding thumbnail in the research page. Currently, the thumbnails direct users to pages of specific 
+information on the old website.
+
+Please add pages regarding specific research and health information in this folder.
