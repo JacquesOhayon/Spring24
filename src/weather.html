@@ -76,7 +76,7 @@
     
     
     <!--Suicide and Weather Correltaions(Section 1)-->
-    <section class="p-2 bg-primary text-light" id="correlationsSection">
+    <section class="p-2" id="correlationsSection">
         <div class="container text-center w-50 p-5">
             <h2>Suicide and Weather Correlations</h2>
             <p class="lead">
@@ -86,6 +86,8 @@
             </p>
         </div>
     </section>
+
+
     <!--Suicide and Weather Correltaions(Section 2)-->
     <section class="p-5">
         <div class="container">
@@ -138,11 +140,12 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("weatherForm").addEventListener("submit", function(event) {
-                event.preventDefault(); // Prevent form submission
+                event.preventDefault();
 
                 // Get form values
                 const location = document.getElementById("location").value;
                 const date = document.getElementById("date").value;
+
 
                 // Validate date
                 const currentDate = new Date();
@@ -152,11 +155,22 @@
                     return; 
                 }
 
+                // Calculate the start and end date for fetching weather data
+                const startDate = new Date(selectedDate);
+                startDate.setDate(startDate.getDate() - 5);
+                const endDate = new Date(selectedDate);
+                endDate.setDate(endDate.getDate() + 5);
+
+                // Format the dates for the API call
+                const formattedStartDate = startDate.toISOString().split('T')[0];
+                const formattedEndDate = endDate.toISOString().split('T')[0];
+                
                 // Fetch weather data based on user input
                 const apiKey = 'ZMC696N3FA8JQW6DRNFUMXE7B';
                 const baseUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
-                const fullUrl = `${baseUrl}${location}/${date}/${date}?unitGroup=us&key=${apiKey}`;
+                const fullUrl = `${baseUrl}${location}/${formattedStartDate}/${formattedEndDate}?unitGroup=us&key=${apiKey}`;
 
+                // check for successful call
                 fetch(fullUrl)
                     .then(response => {
                         if (!response.ok) {
@@ -165,11 +179,15 @@
                         return response.json();
                     })
                     .then(weatherData => {
+                        console.log("Weather Data Found");
                         displayWeatherData(weatherData, date);
+                        logAverageVPD(weatherData);
                     })
                     .catch(error => {
                         console.error('Error fetching weather data:', error);
                     });
+
+                
             });
         });
 
@@ -213,11 +231,9 @@
                     if (tableBody) {
                         weatherData.days.forEach(day => {
                             day.hours.forEach(hour => {
-                                console.log(hour)
                                 const hourTime = hour.datetime;
                                 const temp = hour.temp;
                                 const humidity = hour.humidity;
-                                
 
                                 // Calculate VPD
                                 const vpd = calculateVPD(temp, humidity);
@@ -245,7 +261,7 @@
                 `;
 
                 // Draw the chart
-                generateVPDChart(weatherData.days[0].hours);
+                generateVPDChart(weatherData.days, date);
 
             } else {
                 console.log("Failed to retrieve weather data");
@@ -258,21 +274,38 @@
             return vpd;
         }
 
-        function generateVPDChart(hourlyData) {
+        function generateVPDChart(daysData, selectedDate) {
             const ctx = document.getElementById('vpdChart').getContext('2d');
-            const labels = hourlyData.map(hour => hour.datetime);
-            const vpdData = hourlyData.map(hour => calculateVPD(hour.temp, hour.humidity).toFixed(2));
+            
+            // Extract dates and average VPDs for the chart
+            const labels = daysData.map(day => day.datetime);
+            const averageVPDs = daysData.map(day => {
+                const vpdValues = day.hours.map(hour => calculateVPD(hour.temp, hour.humidity));
+                const avgVPD = vpdValues.reduce((sum, vpd) => sum + vpd, 0) / vpdValues.length;
+                return avgVPD.toFixed(2);
+            });
 
             new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'VPD in kPa',
-                        data: vpdData,
+                        label: 'Average VPD in kPa',
+                        data: averageVPDs,
                         borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
+                        borderWidth: 2,
                         fill: false,
+                        tension: 0.1,
+                    }, {
+                        label: 'Selected Date',
+                        data: [{
+                            x: selectedDate,
+                            y: calculateSelectedDateVPD(selectedDate, daysData)
+                        }],
+                        backgroundColor: 'red',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointStyle: 'rectRounded'
                     }]
                 },
                 options: {
@@ -280,17 +313,35 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Time'
+                                text: 'Date'
                             }
                         },
                         y: {
                             title: {
                                 display: true,
-                                text: 'VPD in kiloPascals'
+                                text: 'Average VPD in kiloPascals'
                             }
                         }
                     }
                 }
+            });
+        }
+
+        function calculateSelectedDateVPD(selectedDate, daysData) {
+            const selectedDay = daysData.find(day => day.datetime === selectedDate);
+            if (!selectedDay) return null;
+
+            const vpdValues = selectedDay.hours.map(hour => calculateVPD(hour.temp, hour.humidity));
+            const avgVPD = vpdValues.reduce((sum, vpd) => sum + vpd, 0) / vpdValues.length;
+            return avgVPD.toFixed(2);
+        }
+
+
+        function logAverageVPD(weatherData) {
+            weatherData.days.forEach(day => {
+                const vpdValues = day.hours.map(hour => calculateVPD(hour.temp, hour.humidity));
+                const avgVPD = vpdValues.reduce((sum, vpd) => sum + vpd, 0) / vpdValues.length;
+                console.log(`Date: ${day.datetime}, Average VPD: ${avgVPD.toFixed(2)} kPa`);
             });
         }
 
